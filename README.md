@@ -1,73 +1,86 @@
-# React + TypeScript + Vite
+# Portifolio
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Production-ready containerization for a Vite + React portfolio site.
 
-Currently, two official plugins are available:
+## Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- React 19
+- TypeScript
+- Vite 8
+- Tailwind CSS 4
+- Bun for dependency installation and build
+- Nginx (unprivileged) for static delivery
 
-## React Compiler
+## Local development
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+bun install
+bun run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+If you prefer npm:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
+
+## Production build
+
+```bash
+bun run build
+```
+
+The generated static site is written to `dist/`.
+
+## Docker
+
+Build the image:
+
+```bash
+docker build -t portifolio:latest .
+```
+
+Run the container:
+
+```bash
+docker run --rm -p 8080:8080 portifolio:latest
+```
+
+The application will be available at `http://localhost:8080`.
+
+## Docker Compose
+
+Start the service:
+
+```bash
+docker compose up -d --build
+```
+
+Stop it:
+
+```bash
+docker compose down
+```
+
+The exposed host port defaults to `8080`. Override it with `PORT`:
+
+```bash
+PORT=3000 docker compose up -d --build
+```
+
+## Deployment notes
+
+- The runtime image is multi-stage and only contains built static assets plus Nginx.
+- Nginx runs as a non-root user on port `8080`.
+- SPA routing is enabled with `try_files ... /index.html`.
+- Static assets under `/assets` are served with long-lived immutable caching.
+- The Compose service uses `restart: unless-stopped`, a healthcheck, read-only filesystem mode, and temporary writable mounts for Nginx runtime paths.
+
+## Recommended deployment flow
+
+1. Build and test locally with `bun run build`.
+2. Build the container with `docker build -t your-registry/portifolio:tag .`.
+3. Push the image to your registry.
+4. Deploy it behind a reverse proxy or ingress that terminates TLS.
+5. Map external traffic to container port `8080`.
