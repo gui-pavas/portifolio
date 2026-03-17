@@ -37,12 +37,12 @@ export const messages = {
       button: "Baixar CV",
       items: [
         {
-          href: "/pdf/cv-guilherme-sapateiro-pt.pdf",
+          href: "/pdf/CV-PT.pdf",
           download: "Guilherme-Sapateiro-CV-PT.pdf",
           label: "🇧🇷 Português",
         },
         {
-          href: "/pdf/cv-guilherme-sapateiro-en.pdf",
+          href: "/pdf/CV-EN.pdf",
           download: "Guilherme-Sapateiro-CV-EN.pdf",
           label: "🇺🇸 English",
         },
